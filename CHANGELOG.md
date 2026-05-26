@@ -21,6 +21,7 @@ Docs: https://docs.openclaw.ai
 
 ### Fixes
 
+- QQ Bot: respect `OPENCLAW_HOME` for outbound media path resolution so `<qqmedia>` sends no longer silently fail when `HOME` and `OPENCLAW_HOME` differ (Docker / multi-user hosts). Persisted QQ Bot data (sessions, known users, refs) stays anchored on the OS home for upgrade compatibility. Fixes #83562. Thanks @sliverp.
 - Update: report the primary malformed `openclaw.extensions` payload error without adding a duplicate missing-main diagnostic. (#86596) Thanks @ferminquant.
 - Control UI: keep host-local Markdown file paths inert while preserving app-relative links. (#86620) Thanks @BryanTegomoh.
 - Gateway: dampen repeated unauthenticated device-required probes per URL while preserving explicit-auth and paired recovery paths. (#86575) Thanks @ferminquant.
@@ -133,7 +134,6 @@ Docs: https://docs.openclaw.ai
 
 - Gateway: require Talk secret authority before setup-code handoff can include Talk secrets. (#85690) Thanks @ngutman.
 - Agents: keep fallback error reporting scoped to the active model candidate so stale prior-provider quota/auth text is not reported for later fallback attempts. (#86134) thanks @zhangguiping-xydt.
-- iMessage: dedupe enabled accounts that target the same local Messages source so a config with both `default` and a named account no longer starts two `imsg rpc` watchers or duplicates inbound replies; the named account is preferred and `openclaw doctor` flags the redundant account. Fixes #65141. Thanks @swang430.
 
 ## 2026.5.25
 
