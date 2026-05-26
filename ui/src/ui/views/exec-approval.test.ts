@@ -3,10 +3,7 @@
 import { nothing, render } from "lit";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { i18n } from "../../i18n/index.ts";
-import {
-  getRenderedModalDialog,
-  installDialogPolyfill,
-} from "../../test-helpers/modal-dialog.ts";
+import { getRenderedModalDialog, installDialogPolyfill } from "../../test-helpers/modal-dialog.ts";
 import { createStorageMock } from "../../test-helpers/storage.ts";
 import type { AppViewState } from "../app-view-state.ts";
 import type { ExecApprovalRequest } from "../controllers/exec-approval.ts";
@@ -128,6 +125,37 @@ describe("approval and confirmation modals", () => {
       (span) => span.textContent,
     );
     expect(spans).toEqual(["ls", "python -c"]);
+  });
+
+  it("hides unavailable exec approval decisions", async () => {
+    const request = createExecRequest();
+    request.request.ask = "always";
+    request.request.allowedDecisions = ["allow-once", "deny"];
+
+    render(renderExecApprovalPrompt(createExecState({ execApprovalQueue: [request] })), container);
+
+    await getRenderedDialog();
+
+    expect(
+      Array.from(container.querySelectorAll(".exec-approval-actions button")).map((button) =>
+        button.textContent?.trim(),
+      ),
+    ).toEqual(["Allow once", "Deny"]);
+  });
+
+  it("keeps durable exec approval when the request allows it", async () => {
+    const request = createExecRequest();
+    request.request.allowedDecisions = ["allow-once", "allow-always", "deny"];
+
+    render(renderExecApprovalPrompt(createExecState({ execApprovalQueue: [request] })), container);
+
+    await getRenderedDialog();
+
+    expect(
+      Array.from(container.querySelectorAll(".exec-approval-actions button")).map((button) =>
+        button.textContent?.trim(),
+      ),
+    ).toEqual(["Allow once", "Always allow", "Deny"]);
   });
 
   it("maps Escape to exec denial when approval is idle", async () => {

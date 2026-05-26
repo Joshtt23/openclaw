@@ -5,6 +5,36 @@ import Testing
 @Suite(.serialized)
 @MainActor
 struct ExecApprovalPromptLayoutTests {
+    @Test func `ask always prompts omit durable approval`() {
+        let decisions = ExecApprovalsPromptPresenter.allowedPromptDecisions(
+            ExecApprovalPromptRequest(
+                command: "/bin/sh -lc pwd",
+                cwd: "/Users/example/projects/openclaw",
+                host: "node",
+                security: "full",
+                ask: "always",
+                agentId: "main",
+                resolvedPath: "/bin/sh",
+                sessionKey: "session-1"))
+
+        #expect(decisions == [.allowOnce, .deny])
+    }
+
+    @Test func `ask on miss prompts keep durable approval`() {
+        let decisions = ExecApprovalsPromptPresenter.allowedPromptDecisions(
+            ExecApprovalPromptRequest(
+                command: "/bin/sh -lc pwd",
+                cwd: "/Users/example/projects/openclaw",
+                host: "node",
+                security: "full",
+                ask: "on-miss",
+                agentId: "main",
+                resolvedPath: "/bin/sh",
+                sessionKey: "session-1"))
+
+        #expect(decisions == [.allowOnce, .allowAlways, .deny])
+    }
+
     @Test func `accessory view reserves nonzero alert layout space`() {
         let accessory = ExecApprovalsPromptPresenter.buildAccessoryView(
             ExecApprovalPromptRequest(
